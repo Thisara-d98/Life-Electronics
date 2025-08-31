@@ -25,6 +25,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { useAuth } from './context/AuthContext';
 
 const SignUpPage = () => {
     const navigate = useNavigate();
@@ -33,11 +34,12 @@ const SignUpPage = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
-        username: '',
+        userName: '',
         password: '',
         confirmPassword: '',
     });
     const [error, setError] = useState('');
+    const {register,isAuthenticated} = useAuth();
     
     // Password strength state
     const [passwordStrength, setPasswordStrength] = useState(0);
@@ -87,7 +89,7 @@ const SignUpPage = () => {
 
     const handleNext = () => {
         if (activeStep === 0) {
-            if (!formData.email || !formData.username) {
+            if (!formData.email || !formData.userName) {
                 setError('Please fill in all fields');
                 return;
             }
@@ -111,16 +113,30 @@ const SignUpPage = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
-    const handleSignUp = (event) => {
+    const handleSignUp = async event => {
         event.preventDefault();
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
             return;
         }
         // Add registration logic here
+        try {
+            const result = await register(formData);
+            if (result.success) {
+				// Navigate based on user role
+				if (result.role === "ADMIN") {
+					navigate("/admin-dashboard");
+				} else {
+					navigate("/home");
+				}
+			} else {
+				setError(result.message || "Login failed");
+			}
+        } catch(err){
+            setError("An unexpected error occurred");
+        }
         navigate('/home'); // Navigate to home page after successful registration
     };
-
     const getStepContent = (step) => {
         switch (step) {
             case 0:
@@ -151,11 +167,11 @@ const SignUpPage = () => {
                             margin="normal"
                             required
                             fullWidth
-                            id="username"
+                            id="userName"
                             label="Username"
-                            name="username"
-                            autoComplete="username"
-                            value={formData.username}
+                            name="userName"
+                            autoComplete="userName"
+                            value={formData.userName}
                             onChange={handleChange}
                             variant="outlined"
                             InputProps={{
@@ -214,11 +230,11 @@ const SignUpPage = () => {
                                         {getPasswordStrengthLabel()}
                                     </Typography>
                                 </Box>
-                                <LinearProgress 
-                                    variant="determinate" 
-                                    value={passwordStrength} 
-                                    sx={{ 
-                                        height: 8, 
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={passwordStrength}
+                                    sx={{
+                                        height: 8,
                                         borderRadius: 4,
                                         backgroundColor: '#e0e0e0',
                                         '& .MuiLinearProgress-bar': {
@@ -230,7 +246,7 @@ const SignUpPage = () => {
                                 <Box sx={{ mt: 1.5, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                         {formData.password.length >= 8 ? 
-                                            <CheckCircleOutlineIcon fontSize="small" color="success" /> : 
+                                            <CheckCircleOutlineIcon fontSize="small" color="success" /> :
                                             <ErrorOutlineIcon fontSize="small" color="error" />
                                         }
                                         <Typography variant="caption" color="text.secondary">
@@ -238,8 +254,8 @@ const SignUpPage = () => {
                                         </Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                        {formData.password.match(/[a-z]/) && formData.password.match(/[A-Z]/) ? 
-                                            <CheckCircleOutlineIcon fontSize="small" color="success" /> : 
+                                        {formData.password.match(/[a-z]/) && formData.password.match(/[A-Z]/) ?
+                                            <CheckCircleOutlineIcon fontSize="small" color="success" /> :
                                             <ErrorOutlineIcon fontSize="small" color="error" />
                                         }
                                         <Typography variant="caption" color="text.secondary">
@@ -248,7 +264,7 @@ const SignUpPage = () => {
                                     </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                         {formData.password.match(/[0-9]/) ? 
-                                            <CheckCircleOutlineIcon fontSize="small" color="success" /> : 
+                                            <CheckCircleOutlineIcon fontSize="small" color="success" /> :
                                             <ErrorOutlineIcon fontSize="small" color="error" />
                                         }
                                         <Typography variant="caption" color="text.secondary">
@@ -256,8 +272,8 @@ const SignUpPage = () => {
                                         </Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                        {formData.password.match(/[^a-zA-Z0-9]/) ? 
-                                            <CheckCircleOutlineIcon fontSize="small" color="success" /> : 
+                                        {formData.password.match(/[^a-zA-Z0-9]/) ?
+                                            <CheckCircleOutlineIcon fontSize="small" color="success" /> :
                                             <ErrorOutlineIcon fontSize="small" color="error" />
                                         }
                                         <Typography variant="caption" color="text.secondary">
@@ -320,15 +336,15 @@ const SignUpPage = () => {
     };
 
     return (
-        <Box sx={{ 
-            minHeight: '100vh', 
-            display: 'flex', 
+        <Box sx={{
+            minHeight: '100vh',
+            display: 'flex',
             flexDirection: 'column',
             background: 'linear-gradient(135deg, #fff0f5 0%, #f8f9fa 100%)'
         }}>
-            <Container component="main" maxWidth="sm" sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+            <Container component="main" maxWidth="sm" sx={{
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 flex: 1,
                 py: 5
@@ -342,11 +358,11 @@ const SignUpPage = () => {
                     boxShadow: '0 8px 32px rgba(31, 38, 135, 0.15)'
                 }}>
                     <Box sx={{ textAlign: 'center', mb: 4 }}>
-                        <Typography 
-                            component="h1" 
-                            variant="h4" 
+                        <Typography
+                            component="h1"
+                            variant="h4"
                             fontWeight="bold"
-                            sx={{ 
+                            sx={{
                                 color: '#E11E73',
                                 mb: 1
                             }}
@@ -380,7 +396,7 @@ const SignUpPage = () => {
                                 disabled={activeStep === 0}
                                 onClick={handleBack}
                                 variant="outlined"
-                                sx={{ 
+                                sx={{
                                     borderColor: '#dbdfe2',
                                     color: '#5f6368'
                                 }}
@@ -393,8 +409,8 @@ const SignUpPage = () => {
                                     type="submit"
                                     variant="contained"
                                     onClick={handleSignUp}
-                                    sx={{ 
-                                        backgroundColor: '#E11E73', 
+                                    sx={{
+                                        backgroundColor: '#E11E73',
                                         color: '#ffffff',
                                         '&:hover': {
                                             backgroundColor: '#c4145d'
