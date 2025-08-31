@@ -8,6 +8,7 @@ import HomePage from "./features/HomePage/home-page";
 import HeaderNavbar from "./features/HomePage/home-navbar";
 import BillPage from "./features/BillPage/BillPage";
 import AdminDashboard from "./features/Admin/components/admin-dashboard";
+import { AuthProvider } from "./features/Auth/context/AuthContext";
 
 function App() {
 	const items = [
@@ -16,27 +17,19 @@ function App() {
 		// Add more items as needed
 	];
 
-	return (
-		<Router>
-			<HeaderNavbar />
-			<Routes>
-				<Route path="/" element={<SignInPage />} />
-				<Route path="/signup" element={<SignUpPage />} />
-				<Route path="/home" element={<HomePage />} />
-				<Route path="/product/:brand/:price" element={<ProductDetailsPage />} />
-				<Route
-					path="/bill"
-					element={
-						<BillPage
-							items={items}
-							onCancel={() => (window.location.href = "/")}
-						/>
-					}
-				/>
-				<Route path="/admin-dashboard" element={<AdminDashboard />} />
-			</Routes>
-		</Router>
-	);
+	return <AuthProvider>
+			<Router>
+				<HeaderNavbar />
+				<Routes>
+					<Route path="/" element={<SignInPage />} />
+					<Route path="/signup" element={<SignUpPage />} />
+					<Route path="/home" element={<HomePage />} />
+					<Route path="/product/:brand/:price" element={<ProductDetailsPage />} />
+					<Route path="/bill" element={<BillPage items={items} onCancel={() => (window.location.href = "/")} />} />
+					<Route path="/admin-dashboard" element={<AdminDashboard />} />
+				</Routes>
+			</Router>
+		</AuthProvider>;
 }
 
 export default App;
