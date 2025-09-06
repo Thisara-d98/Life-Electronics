@@ -1,6 +1,7 @@
 // context/AuthProvider.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
+import { Navigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
@@ -46,6 +47,7 @@ export const AuthProvider = ({ children }) => {
 	};
 
 	const logout = () => {
+		console.log("set it");
 		setUser(null);
 		localStorage.removeItem("token");
 		localStorage.removeItem("user");

@@ -54,6 +54,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { alpha } from "@mui/material/styles";
+import { useAuth } from "../Auth/context/AuthContext";
 
 // Hide AppBar on scroll down
 function HideOnScroll(props) {
@@ -88,7 +89,7 @@ const USER_SETTINGS = [
   { name: "My Orders", icon: <ShoppingBagIcon />, path: "/orders" },
   { name: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
   { name: "Settings", icon: <SettingsIcon />, path: "/settings" },
-  { name: "Logout", icon: <LogoutIcon />, path: "/logout" },
+  { name: "Logout", icon: <LogoutIcon />, path: "/" },
 ];
 
 function HeaderNavbar() {
@@ -101,6 +102,7 @@ function HeaderNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
+  const {logout} = useAuth();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const isAuthenticated = true; // Replace with actual auth check
 
@@ -160,6 +162,18 @@ function HeaderNavbar() {
   const toggleSubmenu = (item) => {
     setExpandedSubmenu(expandedSubmenu === item ? "" : item);
   };
+
+
+const handleDropDown = async setting =>{
+  try{
+    await logout();
+  } catch(err){
+    console.log("An unexpected error occured");
+  }
+  handleNavigate(setting.path);
+  handleCloseUserMenu();
+
+}
 
   const mobileDrawer = (
     <Box sx={{ width: 280 }} role="presentation">
@@ -650,8 +664,7 @@ function HeaderNavbar() {
                       <MenuItem
                         key={setting.name}
                         onClick={() => {
-                          handleNavigate(setting.path);
-                          handleCloseUserMenu();
+                          handleDropDown(setting);
                         }}
                         sx={{
                           py: 1.5,
